@@ -25,9 +25,7 @@ def get_midnighters(attempts_list, midnight_period):
     for attempt in attempts_list:
         timestamp = attempt['timestamp']
         if timestamp is not None:
-            utc_localize = pytz.utc.localize(datetime.utcfromtimestamp(timestamp))
-            timezone = pytz.timezone(attempt['timezone'])
-            timezone_localize = utc_localize.astimezone(timezone)
+            timezone_localize = get_timezone_localize(timestamp, attempt['timezone'])
             if timezone_localize.time() <= time(hour=midnight_period):
                 midnighters.append(
                     {
@@ -37,6 +35,12 @@ def get_midnighters(attempts_list, midnight_period):
                 )
 
     return midnighters
+
+
+def get_timezone_localize(timestamp, timezone):
+    utc_localize = pytz.utc.localize(datetime.utcfromtimestamp(timestamp))
+    timezone = pytz.timezone(timezone)
+    return utc_localize.astimezone(timezone)
 
 
 def get_args():
