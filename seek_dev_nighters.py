@@ -21,8 +21,8 @@ def get_page(page_num):
     url = 'https://devman.org/api/challenges/solution_attempts'
     params = {'page': str(page_num)}
     response = requests.get(url, params)
-    data = response.json()
-    return data['records'], data['number_of_pages']
+    page_json_content = response.json()
+    return page_json_content['records'], page_json_content['number_of_pages']
 
 
 def get_midnighters(attempts_list, midnight_period):
