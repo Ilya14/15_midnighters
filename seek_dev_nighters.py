@@ -6,16 +6,23 @@ from datetime import datetime, time
 
 
 def load_attempts():
-    def get_page(page_number=1):
-        url = 'https://devman.org/api/challenges/solution_attempts'
-        params = {'page': str(page_number)}
-        response = requests.get(url, params)
-        return response.json()
+    first_page = 1
+    attempts, number_of_pages = get_page(first_page)
+    for attempt in attempts:
+        yield attempt
 
-    for page in range(get_page()['number_of_pages']):
-        attempts = get_page(page + 1)['records']
-        for attempt in attempts:
+    for page in range(first_page + 1, number_of_pages + 1):
+        attempts_index = 0
+        for attempt in get_page(page)[attempts_index]:
             yield attempt
+
+
+def get_page(page_num):
+    url = 'https://devman.org/api/challenges/solution_attempts'
+    params = {'page': str(page_num)}
+    response = requests.get(url, params)
+    data = response.json()
+    return data['records'], data['number_of_pages']
 
 
 def get_midnighters(attempts_list, midnight_period):
@@ -62,8 +69,7 @@ if __name__ == '__main__':
     args = get_args()
     midnight_period = args.hour
 
-    attempts_list = [attempt for attempt in load_attempts()]
-    midnighters = get_midnighters(attempts_list, midnight_period)
+    midnighters = get_midnighters(list(load_attempts()), midnight_period)
 
     print(
         'Devman midnighters in the range [00:00:00, {0}] (total quantity: {1}):'.format(
